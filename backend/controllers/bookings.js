@@ -1,6 +1,7 @@
 const Booking = require("../models/Booking");
 const Car = require("../models/Car");
 const User = require("../models/User");
+const { validatePickupAndReturnDate } = require("../utils/date");
 
 //@desc     Get all bookings
 //@route    GET /api/v1/bookings
@@ -26,7 +27,19 @@ exports.getBookings = async (req, res, next) => {
             });
         }
     }
-
+    else {
+        if (carId) {
+          query = Booking.find({ car: carId }).populate({
+            path: "car",
+            select: "model description",
+          });
+        } else {
+          query = Booking.find().populate({
+            path: "car",
+            select: "model description",
+          });
+        }
+    }
     try {
         const bookings = await query;
         res.status(200).json({
@@ -71,6 +84,15 @@ exports.getBooking = async (req, res, next) => {
 //@access   Private
 exports.addBooking = async (req, res, next) => {
     try {
+        // Check if the user has already booked 3 cars
+        const userBookingsCount = await Booking.countDocuments({ user: req.user.id });
+        if (userBookingsCount >= 3) {
+            return res.status(400).json({
+                success: false,
+                message: "You have already booked 3 cars. You cannot book more than 3 cars.",
+            });
+        }
+
         req.body.car = req.params.carId;
         const car = await Car.findById(req.params.carId);
         if (!car) {
@@ -81,7 +103,6 @@ exports.addBooking = async (req, res, next) => {
         }
         req.body.user = req.user.id;
 
-        // only allow the registered user to book up to 3 nights
         const pickupDate = new Date(req.body.pickupDate);
         const returnDate = new Date(req.body.returnDate);
         const isValidDate = validatePickupAndReturnDate(pickupDate, returnDate);
@@ -101,7 +122,7 @@ exports.addBooking = async (req, res, next) => {
                 if (err) {
                     console.log(err);
                 } else {
-                    //sendMail(user, booking);
+                    
                 }
             });
         }
@@ -133,7 +154,6 @@ exports.updateBooking = async (req, res, next) => {
             });
         }
 
-        // check the booking period not exceed 3 nights
         if (req.body.pickupDate) {
             const pickupDate = new Date(req.body.pickupDate);
 
