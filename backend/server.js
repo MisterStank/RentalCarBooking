@@ -11,6 +11,7 @@ const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
 const bodyParser = require("body-parser");
+
 dotenv.config({ path: "./config/config.env" });
 
 connectDB();
@@ -30,11 +31,9 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(hpp());
 app.use(cookieParser());
-
+app.use("/api/v1/cars", cars);
 app.use("/api/v1/auth", auth);
-
-
-
+app.use("/api/v1/bookings", bookings);
 
 const PORT = process.env.PORT || 5001;
 const server = app.listen(

@@ -7,12 +7,15 @@ const {
   deleteCar,
 } = require("../controllers/cars");
 
+// Include other resource routers
 const bookingRouter = require("./bookings");
 const router = express.Router();
 const { protect, authorize } = require("../middleware/auth");
 
+// Re-route into other resource routers
+
 router.use("/:carId/bookings", bookingRouter);
-router.route("/").get(getCars).post(protect, authorize("admin"), createCar);
+router.route("/").get(getCars).post(createCar);
 
 router
   .route("/:id")

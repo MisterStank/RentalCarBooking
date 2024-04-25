@@ -118,13 +118,7 @@ exports.addBooking = async (req, res, next) => {
                 data: booking,
             });
 
-            User.findById(req.user.id, function (err, user) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    
-                }
-            });
+            // Remove the User.findById block, as it's not necessary here
         }
     } catch (error) {
         console.log(error);
@@ -147,57 +141,26 @@ exports.updateBooking = async (req, res, next) => {
                 message: `No booking with the id of ${req.params.id}`,
             });
         }
-        if (booking.user.toString() !== req.user.id) {
+        
+        // Check if the user is authorized to update the booking
+        if (req.user.role !== "admin" && booking.user.toString() !== req.user.id) {
             return res.status(401).json({
                 success: false,
                 message: `User ${req.user.id} is not authorized to update this booking`,
             });
         }
-
-        if (req.body.pickupDate) {
-            const pickupDate = new Date(req.body.pickupDate);
-
-            if (req.body.returnDate) {
-                const returnDate = new Date(req.body.returnDate);
-                const isValidDate = validatePickupAndReturnDate(
-                    pickupDate,
-                    returnDate
-                );
-                if (!isValidDate.pickupBeforeReturn) {
-                    return res.status(400).json({
-                        success: false,
-                        message: `The return date should be after the pickup date.`,
-                    });
-                }
-            } else {
-                const isValidDate = validatePickupAndReturnDate(
-                    pickupDate,
-                    booking.returnDate
-                );
-                if (!isValidDate.pickupBeforeReturn) {
-                    return res.status(400).json({
-                        success: false,
-                        message: `Cannot change pickup date to be after return date.`,
-                    });
-                }
-            }
-        } else if (req.body.returnDate) {
-            const returnDate = new Date(req.body.returnDate);
-            const isValidDate = validatePickupAndReturnDate(
-                booking.pickupDate,
-                returnDate
-            );
-            if (!isValidDate.pickupBeforeReturn) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Cannot change return date to be before pickup date.`,
-                });
-            }
-        }
+        
+        // Update the booking and handle case where findByIdAndUpdate returns null
         booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true,
         });
+        if (!booking) {
+            return res.status(404).json({
+                success: false,
+                message: `No booking with the id of ${req.params.id}`,
+            });
+        }
         res.status(200).json({
             success: true,
             data: booking,
@@ -223,13 +186,16 @@ exports.deleteBooking = async (req, res, next) => {
                 message: `No booking with the id of ${req.params.id}`,
             });
         }
-        if (booking.user.toString() !== req.user.id) {
+
+        // Check if the user is authorized to delete the booking
+        if (req.user.role !== "admin" && booking.user.toString() !== req.user.id) {
             return res.status(401).json({
                 success: false,
                 message: `User ${req.user.id} is not authorized to delete this booking`,
             });
         }
-        await booking.remove();
+
+        await Booking.findByIdAndDelete(req.params.id);
         res.status(200).json({ success: true, data: {} });
     } catch (error) {
         console.log(error);
