@@ -5,17 +5,9 @@ const BookingSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  pickupLocation: {
-    type: String,
-    required: [true, "Please add pick-up location"],
-  },
   returnDate: {
     type: Date,
     required: true,
-  },
-  returnLocation: {
-    type: String,
-    required: [true, "Please add return location"],
   },
   user: {
     type: mongoose.Schema.ObjectId,
