@@ -8,7 +8,7 @@ export default function Profile() {
         const fetchBookings = async () => {
             try {
                 const response = await getBookings();
-                setBookings(response.result);
+                setBookings(response);
             } catch (error) {
                 console.error("Error fetching bookings:", error);
             }

@@ -3,6 +3,11 @@ import { getCookie } from "cookies-next";
 import toast from "react-hot-toast";
 export default async function getBookings() {
     const token = getCookie("token");
+    if (!token) {
+        // Handle missing token, e.g., redirect to login
+        console.error("No token available. Please log in.");
+        return;
+    }
     const response = await fetch("http://localhost:5000/api/v1/bookings", {
         method: "GET",
         credentials: "include",
