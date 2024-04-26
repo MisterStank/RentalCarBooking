@@ -17,7 +17,10 @@ dotenv.config({ path: "./config/config.env" });
 connectDB();
 const cors = require("cors");
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow requests from localhost:3000
+  credentials: true // Allow credentials to be sent with requests
+}));
 app.use(express.json());
 app.use(mongoSanitize());
 app.use(helmet());

@@ -17,6 +17,7 @@ export default async function login(email: string, password: string) {
         toast.success("Login successful");
         const data = await response.json();
         setCookie("token", data?.AccessToken);
+        localStorage.setItem('token', data.token);
         return data;
     } else {
         // Login failed
