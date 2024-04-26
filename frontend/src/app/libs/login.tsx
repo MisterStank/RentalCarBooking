@@ -16,13 +16,8 @@ export default async function login(email: string, password: string) {
         console.log("Login successful");
         toast.success("Login successful");
         const data = await response.json();
-        // setCookie("token", data?.AccessToken);
-        setCookie("token", data?.AccessToken, {
-            httpOnly: false,
-            secure: false,
-            sameSite: "lax",
-        });
-
+        setCookie("token", data?.AccessToken);
+        localStorage.setItem("token", data.token);
         return data;
     } else {
         // Login failed
