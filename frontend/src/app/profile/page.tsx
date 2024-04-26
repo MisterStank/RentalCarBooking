@@ -19,9 +19,9 @@ export default function Profile() {
     return (
         <main>
             {bookings ? (
-                <ul>
+                <ul className="ml-4">
                     {bookings.data.map((datum) => (
-                        <li key={datum._id}>
+                        <li key={datum._id} className="mb-4">
                             <h3>Booking ID: {datum._id}</h3>
                             <p>
                                 Pickup Date:{" "}
